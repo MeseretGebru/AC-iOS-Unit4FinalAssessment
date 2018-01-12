@@ -9,7 +9,12 @@
 import UIKit
 
 enum PropertyName: String {
-    case widthMultiplier = "Width Multiplier"
+    case widthMultiplier  = "Width Multiplier"
+    case hightMultiplier  = "Hight Multiplier"
+    case horizontalOffset = "Horizontal Offset"
+    case verticalOffset   = "Vertical Offset"
+    case numberOfFlips    = "Number OfFlips"
+    
     //TO DO: Add other PropertyName Cases
 }
 
@@ -21,12 +26,23 @@ struct AnimationProperty {
     let startingStepperVal: Double
 }
 
+struct Setting: Codable {
+    var var1: String //temporary names
+    let var2: String
+    
+    //TODO:
+}
+
 class SettingsViewController: UIViewController {
 
     //TO DO: Add more properties
     var properties: [[AnimationProperty]] =
     [
-        [AnimationProperty(name: .widthMultiplier, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0)]
+        [AnimationProperty(name: .widthMultiplier, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0),
+         AnimationProperty(name: .hightMultiplier, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0)],
+        [AnimationProperty(name: .horizontalOffset, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0),
+        AnimationProperty(name: .verticalOffset, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0)],
+        [AnimationProperty(name: .numberOfFlips, stepperMin: 0, stepperMax: 1.0, stepperIncrement: 0.1, startingStepperVal: 0.0)]
     ]
 
     
@@ -34,6 +50,7 @@ class SettingsViewController: UIViewController {
         super.viewDidLoad()
         view.addSubview(tableView)
         navigationItem.title = "Settings"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "+", style: .plain, target: self, action: nil)// #selector(saveSetting))
         layoutTableView()
     }
     
@@ -49,9 +66,28 @@ class SettingsViewController: UIViewController {
         let tv = UITableView()
         tv.dataSource = self
         tv.delegate = self
-        //TO DO: Register your subclass
+        tv.register(SettingTableViewCell.self, forCellReuseIdentifier: "SettingCell")
         return tv
     }()
+    
+    
+    
+    //Animation......
+//    func animateScale(){
+//        let animation = CABasicAnimation(keyPath: "transform.scale")
+//        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+//        let toValue = CATransform3DMakeScale(0.01, 0.01, 0)
+//        let fromValue = CATransform3DMakeScale(1, 1, 0)
+//        animation.fromValue = fromValue
+//        animation.toValue = toValue
+//        animation.duration = 2.0
+//        animation.repeatCount = Float.infinity
+//        //snowmanImageView.layer.add(animation, forKey: nil)
+//    }
+    
+    //Save settings...
+    
+    
 }
 
 extension SettingsViewController: UITableViewDataSource {
@@ -60,9 +96,16 @@ extension SettingsViewController: UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         //TO DO: Implement your Custom Cell that has a stepper
+        
         let property = properties[indexPath.section][indexPath.row]
-        let cell = UITableViewCell()
-        cell.textLabel?.text = property.name.rawValue
+        let cell = tableView.dequeueReusableCell(withIdentifier: "SettingCell", for: indexPath) as!SettingTableViewCell
+        
+        //TODO:
+        
+        let value = cell.settingStepper.maximumValue // for teat
+        cell.settingLabel.text = "\(property.name.rawValue): \(value)"
+        cell.settingStepper.maximumValue = property.stepperMax
+        
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -72,12 +115,15 @@ extension SettingsViewController: UITableViewDataSource {
 
 extension SettingsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        
         switch section {
         case 0:
             return "Size Settings"
-        //TO DO: Handle other sections
+        case 1:
+            return "Position Setting"
         default:
             return "Other Settings"
+        
         }
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
